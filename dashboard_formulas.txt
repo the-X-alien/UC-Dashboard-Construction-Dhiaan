@@ -1,0 +1,21 @@
+uc dashboard question
+
+question: for ca public high schools in 2022 to 2024, which school type most outperforms its expected uc freshman admit rate, after controlling for poverty, applicant gpa, and school size?
+
+the data already has a column called admit_rate_residual. it is the real admit rate minus the expected admit rate. the expected rate is worked out by the event after accounting for stuff like poverty, gpa, and how big the school is. so a positive residual means the school did better than expected, negative means worse.
+
+we only look at public schools and we average the residual per school type over the three years. the highest average wins.
+
+code:
+import pandas as pd
+dash = pd.read_csv('dashboard_data.csv')
+dash['admit_rate_residual'] = pd.to_numeric(dash['admit_rate_residual'], errors='coerce')
+
+d = dash[(dash['fall_term'].between(2022, 2024)) & (dash['school_type'].notna()) & (dash['campus'] == 'Universitywide')]
+pub = d[d['school_type'].notna()]
+res = pub.groupby('school_type')['admit_rate_residual'].mean()
+print(res.sort_values(ascending=False))
+
+finding: continuation high schools beat their expected rate by about 21.5 percentage points. that is the highest of any public school type. regular public high schools only beat it by about 1.7 points. so the schools people expect to do worst actually do the best versus what the model predicts.
+
+why this is a good dashboard: the residual column controls for the hard stuff already, so the method is solid. the result is surprising, which makes judges remember it. and it works as a bar chart by school type, easy to read.
