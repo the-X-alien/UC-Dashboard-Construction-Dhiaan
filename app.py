@@ -14,11 +14,11 @@ try:
 except Exception:
     LOGO = ""
 
-for k, v in {"theme": "light", "gemini_key": "", "gemini_model": "gemini-2.5-flash", "show_settings": False, "nav": "overview"}.items():
+for k, v in {"theme": "light", "gemini_key": "", "gemini_model": "gemini-2.5-flash-lite", "show_settings": False, "nav": "overview"}.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-FREE_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest", "gemini-3-flash-preview", "gemini-3.1-flash-lite"]
+FREE_MODELS = ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest", "gemini-3-flash-preview", "gemini-3.1-flash-lite"]
 
 TH = {
     "light": {
@@ -140,7 +140,7 @@ with st.sidebar:
     st.markdown('<div class="nav-h">Explore</div>', unsafe_allow_html=True)
     for key, label in [("overview", "Overview"), ("map", "School map"),
                        ("schools", "Top schools"), ("cs", "CS context"),
-                       ("deep", "Deep analysis"), ("meth", "Methodology")]:
+                       ("deep", "Deep analysis"), ("ai", "AI Lab"), ("meth", "Methodology")]:
         cls = "nav-item active" if st.session_state.nav == key else "nav-item"
         if st.button(label, key=f"nav_{key}"):
             st.session_state.nav = key
@@ -237,10 +237,10 @@ elif NAV == "schools":
     cA, cB = st.columns(2)
     with cA:
         st.markdown('<div class="h2" style="font-size:1.1rem">Top 20 over-performers</div>', unsafe_allow_html=True)
-        st.dataframe(top20.reset_index().rename(columns={"high_school": "high_school", "admit_rate_residual": "beats_expected_pp"}), height=440, use_container_width=True)
+        st.dataframe(top20.reset_index().rename(columns={"high_school": "high_school", "admit_rate_residual": "beats_expected_pp"}), height=440, width='stretch')
     with cB:
         st.markdown('<div class="h2" style="font-size:1.1rem">10 biggest under-performers</div>', unsafe_allow_html=True)
-        st.dataframe(bot10.reset_index().rename(columns={"high_school": "high_school", "admit_rate_residual": "beats_expected_pp"}), height=440, use_container_width=True)
+        st.dataframe(bot10.reset_index().rename(columns={"high_school": "high_school", "admit_rate_residual": "beats_expected_pp"}), height=440, width='stretch')
 
 elif NAV == "cs":
     st.markdown('<div class="page-title" style="font-size:1.9rem">CS admit-rate penalty (2025)</div>', unsafe_allow_html=True)
@@ -277,8 +277,13 @@ elif NAV == "deep":
     st.markdown('<div class="h2">Does poverty explain it? FRPM vs residual</div>', unsafe_allow_html=True)
     sc = dd.dropna(subset=["frpm_pct"])
     if len(sc) > 5:
+        try:
+            import statsmodels  # noqa
+            trend = dict(trendline="ols")
+        except Exception:
+            trend = {}
         fig = px.scatter(sc, x="frpm_pct", y="admit_rate_residual", color="school_type", opacity=0.7,
-                         trendline="ols", hover_name="high_school")
+                         hover_name="high_school", **trend)
         fig.update_layout(**LAY, height=420, xaxis_title="FRPM poverty %", yaxis_title="Admit rate residual")
         plot(fig)
         corr = sc["frpm_pct"].corr(sc["admit_rate_residual"])
@@ -291,3 +296,99 @@ elif NAV == "meth":
     st.markdown('<div class="page-title" style="font-size:1.9rem">Methodology</div>', unsafe_allow_html=True)
     st.markdown('<div class="card"><div class="lede"><b>Data.</b> Event <code>dashboard_data.csv</code> and <code>uc_freshman_admission_by_discipline.csv</code>. <b>Metric.</b> <code>admit_rate_residual</code> = real admit rate minus expected admit rate, where expected is computed by organizers after adjusting for FRPM poverty, applicant GPA, and school size. <b>Method.</b> Filter to CA public school rows, Universitywide, fall 2022-2024; group by <code>school_type</code>; average the residual. We sum counts then divide, never average rates. <b>Caveat.</b> Universitywide is not the sum of campuses. <b>Reproduce.</b> <code>dashboard_notebook.ipynb</code>.</div></div>', unsafe_allow_html=True)
     st.markdown('<div class="sec"><div class="muted">Source: event datasets. Residual column precomputed by organizers (poverty, GPA, school size). Universitywide is not the sum of campuses.</div></div>', unsafe_allow_html=True)
+
+elif NAV == "ai":
+    st.markdown('<div class="page-title" style="font-size:1.9rem">AI Lab</div>', unsafe_allow_html=True)
+    st.caption("Powered by Gemini (free models). Key stays in your session only, never written to disk.")
+    if not st.session_state.gemini_key:
+        st.info("Add a free Gemini API key in Settings (bottom of sidebar) to unlock Ask-the-data, the Chance-Me predictor, and the helper tools.")
+    st.markdown('<div class="sec" style="border-top:3px solid var(--gold);">', unsafe_allow_html=True)
+    st.markdown('<div class="h2" style="color:var(--gold)">Ask the data</div>', unsafe_allow_html=True)
+    st.markdown('<div class="lede">Type a question. Gemini answers using the real numbers we computed (it does not guess). It sees the finding and every school type\'s residual.</div>', unsafe_allow_html=True)
+    q = st.text_area("Your question", "Why should judges care about this finding?", key="aiq")
+    if st.button("Ask Gemini", key="askb"):
+        if not st.session_state.gemini_key:
+            st.warning("Enter a Gemini API key in Settings first.")
+        else:
+            with st.spinner("Thinking..."):
+                ctx = (f"Context (real computed stats, do not invent any number): {finding_text}\n"
+                       f"School-type residuals in percentage points: {dict(res_pp.round(1))}.\n"
+                       f"Data window {years[0]}-{years[1]}, campus {campus}.\n"
+                       "Answer the user's question clearly and concisely in a student presenter voice. Use plain text; avoid markdown tables. Keep under 180 words.")
+                out = gemini_call(ctx + "\n\nQuestion: " + q, max_tokens=900)
+            st.markdown(out, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ---- Chance Me predictor ----
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2">Chance Me</div>', unsafe_allow_html=True)
+    st.markdown('<div class="lede">Estimate your UC admit odds from real historical rates for your school, campus, and GPA. Based on actual admit rates in the dataset (not a guess).</div>', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        ch_campus = st.selectbox("Campus", ["Universitywide"] + sorted([c for c in dash["campus"].dropna().unique() if c != "Universitywide"]), key="ch_c")
+    with c2:
+        ch_school = st.selectbox("Your high school", [""] + sorted(dash["high_school"].dropna().unique().tolist()), key="ch_s")
+    with c3:
+        ch_gpa = st.number_input("Applicant GPA", min_value=0.0, max_value=5.0, value=3.8, step=0.1, key="ch_g")
+    if st.button("Estimate my chances", key="ch_b"):
+        sub = dash[(dash["campus"] == ch_campus)]
+        rows = []
+        if ch_school:
+            srow = sub[sub["high_school"] == ch_school]
+            if len(srow):
+                r = srow.iloc[0]
+                ar = pd.to_numeric(r.get("admit_rate"), errors="coerce")
+                exp = pd.to_numeric(r.get("expected_admit_rate"), errors="coerce")
+                residuals = pd.to_numeric(r.get("admit_rate_residual"), errors="coerce")
+                gpa = pd.to_numeric(r.get("applicant_gpa"), errors="coerce")
+                rows.append(("Your school (historical)", f"{ar*100:.1f}%" if pd.notna(ar) else "n/a",
+                             f"{residuals*100:+.1f}pp" if pd.notna(residuals) else "n/a",
+                             f"{gpa:.2f}" if pd.notna(gpa) else "n/a"))
+        stype = sub["school_type"].mode().iloc[0] if len(sub) else "High Schools (Public)"
+        stype_rows = sub[sub["school_type"] == stype]
+        base = pd.to_numeric(stype_rows["admit_rate"], errors="coerce").mean()
+        rows.append((f"Your school type avg ({stype})", f"{base*100:.1f}%", "", ""))
+        camp_avg = pd.to_numeric(sub["admit_rate"], errors="coerce").mean()
+        rows.append((f"{ch_campus} overall avg", f"{camp_avg*100:.1f}%", "", ""))
+        df_out = pd.DataFrame(rows, columns=["Group", "Admit rate", "vs expected", "Avg GPA"])
+        st.dataframe(df_out, width='stretch', hide_index=True)
+        st.markdown(f'<div class="cap">These are real historical admit rates from the dataset. Your GPA of {ch_gpa:.1f} is {"above" if ch_gpa >= (gpa if "gpa" in dir() and pd.notna(gpa) else ch_gpa) else "around"} the typical applicant GPA. For a personal prediction, ask Gemini above with your specifics.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ---- helper tools ----
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2">Helper tools</div>', unsafe_allow_html=True)
+    b1, b2, b3, b4 = st.columns(4)
+    with b1:
+        if st.button("Judge scorecard", key="jb", use_container_width=True):
+            if not st.session_state.gemini_key:
+                st.warning("Add a Gemini key in Settings.")
+            else:
+                with st.spinner("Scoring..."):
+                    out = gemini_call("You are a strict datathon judge. Score this dashboard 1-5 on: QUESTION (time window, population, metric), FINDING (concise+justifiable), RIGOR (nuanced), DASHBOARD (accurate+reliable), PRESENTATION (clear). Question: 'For CA public high schools 2022-2024, which school type most outperforms its expected UC admit rate after controlling for poverty, GPA, school size?' Finding: " + finding_text + ". Reply as plain text with each criterion and a 1-5 score and one tip to reach 5/5.", max_tokens=900)
+                st.markdown(out, unsafe_allow_html=True)
+    with b2:
+        if st.button("Competitor radar", key="cr", use_container_width=True):
+            if not st.session_state.gemini_key:
+                st.warning("Add a Gemini key in Settings.")
+            else:
+                with st.spinner("Scanning..."):
+                    out = gemini_call("High school UC admissions datathon, 75 finalists using AI. Our finding: " + finding_text + ". List 5 dashboard angles rivals likely built (specific), then 3 ways we can differentiate and wow judges. Plain text, terse bullets.", max_tokens=900)
+                st.markdown(out, unsafe_allow_html=True)
+    with b3:
+        if st.button("Wow hook", key="wh", use_container_width=True):
+            if not st.session_state.gemini_key:
+                st.warning("Add a Gemini key in Settings.")
+            else:
+                with st.spinner("Writing..."):
+                    out = gemini_call("Write ONE punchy sentence opener to judges: " + finding_text + ". Counterintuitive, human, under 25 words. Plain text only.", max_tokens=300)
+                st.markdown(f"<div class='card feature'>{out}</div>", unsafe_allow_html=True)
+    with b4:
+        if st.button("Draft README", key="wr", use_container_width=True):
+            if not st.session_state.gemini_key:
+                st.warning("Add a Gemini key in Settings.")
+            else:
+                with st.spinner("Drafting..."):
+                    out = gemini_call("Write a half-page methodology README for this dashboard. Question: 'For CA public high schools 2022-2024, which school type most outperforms its expected UC admit rate after controlling for poverty, GPA, school size?' Finding: " + finding_text + ". Mention the admit_rate_residual column, sum-then-divide rule, and that Universitywide is not the sum of campuses. Plain text, no emojis.", max_tokens=900)
+                st.markdown(out, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
