@@ -65,6 +65,9 @@ section[data-testid="stSidebar"]{{background:var(--paper);border-right:1px solid
   border-radius:var(--radius-sm)!important;font-weight:600!important;font-family:var(--sans)!important;}}
 .stButton>button:hover{{border-color:var(--gold)!important;color:var(--navy)!important;}}
 .stButton>button:focus{{outline:2px solid var(--gold)!important;}}
+/* make text/password inputs readable in both themes */
+.stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div{{color:var(--ink)!important;background:var(--card)!important;border:1px solid var(--btn-border)!important;}}
+.stTextInput>div>div>input::placeholder, .stTextArea>div>div>textarea::placeholder{{color:var(--muted)!important;}}
 
 .topbar{{position:sticky;top:0;z-index:40;background:var(--navy);border-bottom:3px solid var(--gold);
   padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}}
@@ -137,7 +140,7 @@ with st.sidebar:
     st.markdown('<div class="nav-h">Explore</div>', unsafe_allow_html=True)
     for key, label in [("overview", "Overview"), ("map", "School map"),
                        ("schools", "Top schools"), ("cs", "CS context"),
-                       ("deep", "Deep analysis"), ("ai", "AI Lab"), ("meth", "Methodology")]:
+                       ("deep", "Deep analysis"), ("meth", "Methodology")]:
         cls = "nav-item active" if st.session_state.nav == key else "nav-item"
         if st.button(label, key=f"nav_{key}"):
             st.session_state.nav = key
@@ -282,47 +285,6 @@ elif NAV == "deep":
         st.markdown(f'<div class="cap">Correlation FRPM% vs residual = {corr:.2f}. Near zero means poverty alone does NOT explain the gaps, which strengthens the rigor of the finding.</div>', unsafe_allow_html=True)
     else:
         st.markdown('<div class="muted">Not enough FRPM data in this window to plot.</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-elif NAV == "ai":
-    st.markdown('<div class="page-title" style="font-size:1.9rem">AI Lab</div>', unsafe_allow_html=True)
-    st.caption("Powered by Gemini (free models). Key stays in your session only.")
-    st.markdown('<div class="sec" style="border-top:3px solid var(--gold);">', unsafe_allow_html=True)
-    st.markdown('<div class="h2" style="color:var(--gold)">Ask the data</div>', unsafe_allow_html=True)
-    st.markdown('<div class="lede">Type a question. Gemini answers using the real numbers we computed (it does not guess). Context it sees: ' + finding_text + f' Top types: {dict(res_pp.round(1))}.</div>', unsafe_allow_html=True)
-    q = st.text_area("Your question", "Why should judges care about this finding?", key="aiq")
-    if st.button("Ask Gemini", key="askb"):
-        with st.spinner("Thinking..."):
-            ctx = (f"Context (real computed stats, do not invent): {finding_text}. "
-                   f"School-type residuals (pp): {dict(res_pp.round(1))}. "
-                   f"Data window {years[0]}-{years[1]}, campus {campus}. "
-                   "Answer the user's question clearly and concisely, student presenter voice.")
-            out = gemini_call(ctx + "\n\nQuestion: " + q, max_tokens=500)
-        st.markdown(f"<div class='card'>{out}</div>", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sec">', unsafe_allow_html=True)
-    st.markdown('<div class="h2">Generate tools</div>', unsafe_allow_html=True)
-    b1, b2, b3, b4 = st.columns(4)
-    with b1:
-        if st.button("Judge Scorecard", key="jb", use_container_width=True):
-            with st.spinner("Scoring..."):
-                out = gemini_call("You are a strict datathon judge. Score this dashboard 1-5 on: QUESTION (time window, population, metric), FINDING (concise+justifiable), RIGOR (nuanced), DASHBOARD (accurate+reliable), PRESENTATION (clear). Question: 'For CA public high schools 2022-2024, which school type most outperforms its expected UC admit rate after controlling for poverty, GPA, school size?' Finding: " + finding_text + ". Reply JSON: {\"question\":n,\"finding\":n,\"rigor\":n,\"dashboard\":n,\"presentation\":n,\"total\":n,\"tip\":\"one line\"}")
-            st.markdown(f"<div class='card'>{out}</div>", unsafe_allow_html=True)
-    with b2:
-        if st.button("Competitor Radar", key="cr", use_container_width=True):
-            with st.spinner("Scanning..."):
-                out = gemini_call("High school UC admissions datathon, 75 finalists using AI. Our finding: " + finding_text + ". List 5 dashboard angles rivals built (specific), then 3 ways to differentiate and wow judges. Bullets, terse.")
-            st.markdown(f"<div class='card'>{out}</div>", unsafe_allow_html=True)
-    with b3:
-        if st.button("Wow Hook", key="wh", use_container_width=True):
-            with st.spinner("Writing..."):
-                out = gemini_call("ONE punchy sentence opener to judges: " + finding_text + ". Counterintuitive, human, under 25 words.")
-            st.markdown(f"<div class='card feature'>{out}</div>", unsafe_allow_html=True)
-    with b4:
-        if st.button("Write README", key="wr", use_container_width=True):
-            with st.spinner("Drafting..."):
-                out = gemini_call("Write a half-page methodology README for this dashboard. Question: 'For CA public high schools 2022-2024, which school type most outperforms its expected UC admit rate after controlling for poverty, GPA, school size?' Finding: " + finding_text + ". Mention the admit_rate_residual column, sum-then-divide rule, and that Universitywide is not the sum of campuses. Plain, no emojis.")
-            st.markdown(f"<div class='card'>{out}</div>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif NAV == "meth":
