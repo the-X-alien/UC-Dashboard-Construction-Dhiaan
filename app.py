@@ -10,7 +10,7 @@ st.set_page_config(page_title="UC Admissions Lab", layout="wide", initial_sideba
 # embed the Berkeley CAL logo as a base64 data URI so it always renders (local + deployed)
 try:
     with open("cal_b64.txt") as _f:
-        LOGO = "data:image/png;base64," + _f.read().strip()
+        LOGO = "data:image/jpeg;base64," + _f.read().strip()
 except Exception:
     LOGO = ""
 
@@ -91,8 +91,10 @@ section[data-testid="stSidebar"]{{background:var(--paper);border-right:1px solid
 .card.blue{{border-top:3px solid var(--navy);}}
 .kpi .num{{font-size:2rem;font-weight:700;line-height:1;}}
 .kpi .lab{{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);}}
-.aiout{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:var(--ink);font-size:.98rem;line-height:1.6;}}
+.aiout{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:var(--ink) !important;font-size:.98rem;line-height:1.6;}}
 .aiout *{{color:var(--ink) !important;}}
+.aiout p, .aiout div, .aiout span, .aiout li{{color:var(--ink) !important;}}
+.stMarkdown .aiout, div.aiout *{{color:var(--ink) !important;}}
 .win{{color:var(--ok);}} .lose{{color:var(--bad);}}
 .sec{{margin-top:30px;padding-top:26px;border-top:1px solid var(--line);}}
 .cap{{color:var(--muted);font-size:12.5px;margin-top:8px;}}
