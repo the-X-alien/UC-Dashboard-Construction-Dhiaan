@@ -91,6 +91,8 @@ section[data-testid="stSidebar"]{{background:var(--paper);border-right:1px solid
 .card.blue{{border-top:3px solid var(--navy);}}
 .kpi .num{{font-size:2rem;font-weight:700;line-height:1;}}
 .kpi .lab{{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);}}
+.aiout{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:var(--ink);font-size:.98rem;line-height:1.6;}}
+.aiout *{{color:var(--ink) !important;}}
 .win{{color:var(--ok);}} .lose{{color:var(--bad);}}
 .sec{{margin-top:30px;padding-top:26px;border-top:1px solid var(--line);}}
 .cap{{color:var(--muted);font-size:12.5px;margin-top:8px;}}
@@ -316,7 +318,7 @@ elif NAV == "ai":
                        f"Data window {years[0]}-{years[1]}, campus {campus}.\n"
                        "Answer the user's question clearly and concisely in a student presenter voice. Use plain text; avoid markdown tables. Keep under 180 words.")
                 out = gemini_call(ctx + "\n\nQuestion: " + q, max_tokens=900)
-            st.markdown(out, unsafe_allow_html=True)
+            st.markdown(f'<div class="aiout">{out}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---- Chance Me predictor ----
