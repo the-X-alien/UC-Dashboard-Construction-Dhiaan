@@ -1,23 +1,46 @@
-# UC Question Sprint - Dhiaan
+# UC Admissions Lab - Dashboard Construction
 
-Ten numeric questions from the UC Admissions Data Challenge question sprint, answered with pandas in Google Colab.
+## Question
+For CA public high schools in 2022-2024, which school type most outperforms its expected UC
+freshman admit rate, after controlling for poverty, applicant GPA, and school size?
 
-## Questions and answers
-1. In fall 2025, how many UC campuses did the average applicant apply to? **5.74**
-2. Fall 2025 UCLA admit rate for applicants from CA public high schools. **8.29%**
-3. Fall 2025 campus where Computer Science costs the most admit rate vs its own overall rate. **Davis**
-4. IQR of admit GPA for Berkeley Computer Science in fall 2025. **0.02**
-5. In fall 2025, how many of the 9 UC campuses had White freshman admit rate higher than Hispanic/Latino(a)? **9**
-6. Systemwide fall 2025, higher freshman admit rate: White or Hispanic/Latino(a)? **Hispanic/Latino(a)**
-7. Of Bay Area high school graduates in class of 2023, share enrolled at a CA Community College within 12 months. **34.04%**
-8. Mission San Jose High School fall 2023, share of a-g completers who applied to UC. **99.06%**
-9. Distinct CA public high schools that sent at least one freshman applicant to UC in fall 2025. **193**
-10. Of five listed schools, which most outperforms its expected Berkeley admit rate 2022-2025 (controls for a-g completion, poverty, applicant GPA, school size)? **MISSION SENIOR HIGH SCHOOL**
+- Time window: fall terms 2022, 2023, 2024
+- Population: CA public high schools (Universitywide)
+- Metric: mean admit_rate_residual in percentage points, by school type
+
+## Finding
+Continuation High Schools beat their expected UC admit rate by about 21.5 percentage points
+across 2022-2024, the highest of any CA public school type. Alternative Schools of Choice
+(+10.1pp) and K-12 Public schools (+7.2pp) also clear expectations, while regular public high
+schools average only about 1.7pp. The schools expected to send the fewest students to UC are the
+ones that most outperform their predicted admit rate.
+
+## Data and metric
+Source files: `dashboard_data.csv`, `uc_freshman_admission_by_discipline.csv` (event Google Drive).
+The `admit_rate_residual` column is the real admit rate minus the expected admit rate. The expected
+rate is computed by the event organizers after adjusting for school poverty (FRPM), applicant GPA,
+and school size, so a positive residual means a school admitted more than its profile predicted.
 
 ## Method
-Each question was solved with a single pandas block. The event CSVs were used directly (no external stats): `bay_area_modeling_table.csv` for applicant counts, CCC enrollment, and school-level outcomes; `dashboard_data.csv` for campus and school residual rates; `uc_admissions_summary_by_ethnicity.csv` for ethnicity admit rates; `uc_freshman_admission_by_discipline.csv` for CS vs overall discipline rates; `uc_transfer_admission_by_major.csv` for Berkeley CS GPA bands. Every answer was cross-checked with a second method (SQL) and the two agreed.
+Filter to CA public school rows, Universitywide, fall 2022-2024; group by `school_type`; average the
+residual. Rates are computed by summing counts then dividing, never by averaging rates.
+Universitywide is not the sum of campuses and is never treated as one.
 
 ## Files
-- `sprint_notebook.ipynb` - Colab notebook, one cell per question, prints each answer
-- `sprint_formulas.txt` - plain explanation of each formula
-- `Data/` - source datasets from the event Google Drive
+- `app.py` - Streamlit dashboard
+- `dashboard_notebook.ipynb` - Colab notebook that computes the answer
+- `dashboard_formulas.txt` - plain explanation of the calculation
+- `dashboard_data.csv`, `uc_freshman_admission_by_discipline.csv` - source data
+- `presentation.html` - judge presentation
+- `tools_used.md` - tools and stack
+
+## Gemini features
+The AI Lab uses free Gemini models (key entered in-session only, never stored). It offers an
+Ask-the-data Q and A, a Judge Scorecard, a Competitor Radar, a Wow Hook opener, and a README
+generator. The model is given the real computed numbers so it does not guess.
+
+## Run locally
+```
+pip install streamlit plotly pandas
+streamlit run app.py
+```
