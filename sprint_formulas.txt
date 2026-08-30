@@ -1,0 +1,94 @@
+uc question sprint formulas
+
+q1: how many uc campuses does the average applicant apply to in fall 2025
+answer: 5.74
+
+why: one person can apply to more than one campus. the campus rows count a person once per campus, so adding them up counts people many times. the universitywide row counts each person one time. we divide the big number by the one-time number. that tells us how many campuses the average person picked.
+
+y = raw[raw['fall_term'] == 2025]
+big = y[y['campus'] != 'Universitywide']['applicants'].sum()
+one = y[y['campus'] == 'Universitywide']['applicants'].sum()
+print(round(big / one, 2))
+
+q2: ucla fall 2025 admit rate for ca public high school applicants
+answer: 8.29
+
+why: the question asks for ucla and only ca public schools. we grab the ucla rows that are public schools, then divide the admits by the applicants. this is not ucla's full rate because the full rate mixes in private and out of state kids.
+
+s = dash[(dash['fall_term'] == 2025) & (dash['campus'] == 'Los Angeles') & (dash['school_type'] == 'High Schools (Public)')]
+print(round(s['admits'].sum() * 100 / s['applicants'].sum(), 2))
+
+q3: which campus does applying to computer science hurt the most versus its own overall rate
+answer: Davis
+
+why: for each campus we take the cs admit rate and subtract the campus overall rate. the most negative result means cs dropped the rate the most. davis drops the most so davis wins.
+
+d25 = disc[disc['fall_term'] == 2025]
+ov = d25[d25['broad_discipline'] == 'All disciplines'].set_index('campus')['admit_rate']
+cs = d25[d25['broad_discipline'] == 'Computer Science'].set_index('campus')['admit_rate']
+pen = (cs - ov).dropna()
+print(pen.idxmin())
+
+q4: iqr of admit gpa for berkeley computer science fall 2025
+answer: 0.02
+
+why: iqr is just the 75th percentile minus the 25th percentile. the file already has those two numbers for berkeley cs. we subtract them. uc gpa is capped so the top kids are all near 4.0, which makes the gap tiny.
+
+b = trmaj[(trmaj['campus'] == 'Berkeley') & (trmaj['broad_discipline'] == 'Computer Science') & (trmaj['major'] == 'ComputerScience')]
+print(round(b['admit_gpa_p75'].iloc[0] - b['admit_gpa_p25'].iloc[0], 2))
+
+q5: at how many of the 9 campuses was the white admit rate higher than the hispanic/latino(a) rate in fall 2025
+answer: 9
+
+why: for each campus we figure out the white admit rate and the hispanic admit rate using the ethnicity file. then we count how many campuses have white higher. all nine do.
+
+e25 = eth[(eth['fall_term'] == 2025) & (eth['campus'] != 'Systemwide')]
+ap = e25[e25['count_type'] == 'App'].pivot_table(index='campus', columns='ethnicity', values='n', aggfunc='sum')
+ad = e25[e25['count_type'] == 'Adm'].pivot_table(index='campus', columns='ethnicity', values='n', aggfunc='sum')
+white_rate = ad['White'] / ap['White']
+hispanic_rate = ad['Hispanic/Latino(a)'] / ap['Hispanic/Latino(a)']
+print(int((white_rate > hispanic_rate).sum()))
+
+q6: systemwide in fall 2025 which group had the higher freshman admit rate, white or hispanic/latino(a)
+answer: Hispanic/Latino(a)
+
+why: at the whole system level we only compare those two groups. hispanic rate is a bit higher than white rate, so hispanic/latino(a) is the answer. this looks backwards from q5 because systemwide mixes all campuses together.
+
+sysw = eth[(eth['fall_term'] == 2025) & (eth['campus'] == 'Systemwide')]
+wr = sysw[(sysw['ethnicity'] == 'White') & (sysw['count_type'] == 'Adm')]['n'].iloc[0] / sysw[(sysw['ethnicity'] == 'White') & (sysw['count_type'] == 'App')]['n'].iloc[0]
+hr = sysw[(sysw['ethnicity'] == 'Hispanic/Latino(a)') & (sysw['count_type'] == 'Adm')]['n'].iloc[0] / sysw[(sysw['ethnicity'] == 'Hispanic/Latino(a)') & (sysw['count_type'] == 'App')]['n'].iloc[0]
+print('Hispanic/Latino(a)' if hr > wr else 'White')
+
+q7: of bay area high school graduates in 2023, what share enrolled at a california community college within 12 months
+answer: 34.04
+
+why: bay area means those nine counties. we use the 2023 universitywide rows, add up the community college enrollees, then divide by total graduates. that gives the percent.
+
+bay = ['Alameda','Contra Costa','Marin','Napa','San Francisco','San Mateo','Santa Clara','Solano','Sonoma']
+sub = raw[(raw['fall_term'] == 2023) & (raw['campus'] == 'Universitywide') & (raw['county'].isin(bay))]
+print(round(sub['enrolled_ccc'].sum() * 100 / sub['graduates'].sum(), 2))
+
+q8: at mission san jose high school in 2023, what share of a-g completers applied to uc
+answer: 99.06
+
+why: the question gives the formula: universitywide applicants divided by a-g completers. we grab that one school row and divide. almost every a-g completer applied, so its near 100.
+
+m = raw[(raw['high_school'] == 'MISSION SAN JOSE HIGH SCHOOL') & (raw['fall_term'] == 2023) & (raw['campus'] == 'Universitywide')]
+print(round(m['applicants'].iloc[0] * 100 / m['ag_completers'].iloc[0], 2))
+
+q9: how many distinct ca public high schools sent at least one uc applicant in fall 2025
+answer: 193
+
+why: we count unique school names that sent any applicant. filter to 2025, universitywide, public schools, and at least one applicant. the count is 193.
+
+n = raw[(raw['fall_term'] == 2025) & (raw['campus'] == 'Universitywide') & (raw['applicants'] > 0) & (raw['school_type'] == 'High Schools (Public)')]['high_school'].nunique()
+print(n)
+
+q10: of the five schools listed, which one most outperforms its expected berkeley admit rate from 2022 to 2025
+answer: MISSION SENIOR HIGH SCHOOL
+
+why: the data has a column called admit_rate_residual. it is the real rate minus the expected rate after accounting for school stuff like poverty and gpa. a bigger number means the school beat what was expected. we average it per school for berkeley 2022 to 2025 and take the top one. mission senior is highest.
+
+five = ['HERCULES HIGH SCHOOL','MISSION SENIOR HIGH SCHOOL','MONTEREY TRAIL HIGH SCHOOL','PHILLIP & SALA BURTON ACAD HS','RANCHO SAN JUAN HIGH SCHOOL']
+b = dash[(dash['campus'] == 'Berkeley') & (dash['fall_term'].between(2022, 2025)) & (dash['high_school'].isin(five))]
+print(b.groupby('high_school')['admit_rate_residual'].mean().idxmax())
