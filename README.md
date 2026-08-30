@@ -1,5 +1,7 @@
 # UC Admissions Lab - Dashboard Construction
 
+**Live app:** https://uc-admissions-datathon-dhiaan.streamlit.app/
+
 ## Question
 For CA public high schools in 2022-2024, which school type most outperforms its expected UC
 freshman admit rate, after controlling for poverty, applicant GPA, and school size?
