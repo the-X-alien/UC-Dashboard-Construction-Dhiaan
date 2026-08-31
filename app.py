@@ -91,10 +91,8 @@ section[data-testid="stSidebar"]{{background:var(--paper);border-right:1px solid
 .card.blue{{border-top:3px solid var(--navy);}}
 .kpi .num{{font-size:2rem;font-weight:700;line-height:1;}}
 .kpi .lab{{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);}}
-.aiout{{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:var(--ink) !important;font-size:.98rem;line-height:1.6;}}
-.aiout *{{color:var(--ink) !important;}}
-.aiout p, .aiout div, .aiout span, .aiout li{{color:var(--ink) !important;}}
-.stMarkdown .aiout, div.aiout *{{color:var(--ink) !important;}}
+.aiout{{background:#ffffff !important;border:1px solid #d9d3c7 !important;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:#111111 !important;font-size:.98rem;line-height:1.6;}}
+.aiout *{{color:#111111 !important;}}
 .win{{color:var(--ok);}} .lose{{color:var(--bad);}}
 .sec{{margin-top:30px;padding-top:26px;border-top:1px solid var(--line);}}
 .cap{{color:var(--muted);font-size:12.5px;margin-top:8px;}}
