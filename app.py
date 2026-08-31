@@ -332,8 +332,34 @@ elif NAV == "deep":
 
 elif NAV == "meth":
     st.markdown('<div class="page-title" style="font-size:1.9rem">Methodology</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card"><div class="lede"><b>Data.</b> Event <code>dashboard_data.csv</code> and <code>uc_freshman_admission_by_discipline.csv</code>. <b>Metric.</b> <code>admit_rate_residual</code> = real admit rate minus expected admit rate, where expected is computed by organizers after adjusting for FRPM poverty, applicant GPA, and school size. <b>Method.</b> Filter to CA public school rows, Universitywide, fall 2022-2024; group by <code>school_type</code>; average the residual. We sum counts then divide, never average rates. <b>Caveat.</b> Universitywide is not the sum of campuses. <b>Reproduce.</b> <code>dashboard_notebook.ipynb</code>.</div></div>', unsafe_allow_html=True)
-    st.markdown('<div class="sec"><div class="muted">Source: event datasets. Residual column precomputed by organizers (poverty, GPA, school size). Universitywide is not the sum of campuses.</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="lede">How we answered the question, mapped to the five judging criteria. This page is the audit trail a judge can verify.</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2" style="color:var(--gold)">1. Question - time window, population, metric</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card"><b>Time window:</b> fall terms 2022, 2023, 2024. <b>Population:</b> California public high schools (Universitywide). <b>Metric:</b> mean <code>admit_rate_residual</code> in percentage points, grouped by <code>school_type</code>. The residual is precomputed by organizers = real admit rate minus expected admit rate, where expected already controls for FRPM poverty, applicant GPA, and school size.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2" style="color:var(--gold)">2. Finding - concise and justifiable</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card feature"><b>Continuation High Schools beat their expected UC admit rate by ~{top_val} pp (2022-2024)</b>, the highest of any CA public school type, while regular public high schools average only ~1.7 pp. The schools expected to send the fewest students to UC are the ones that most outperform their predicted admit rate. Justified by the residual column, which isolates over-performance after poverty, GPA, and size are accounted for.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2" style="color:var(--gold)">3. Rigor - nuanced and mature</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card">We sum applicant and admit counts then divide; we never average percentages (that biases toward small schools). Universitywide is not the sum of campuses, so we report it separately. We treat the crowded CS-penalty finding (Davis harshest) as <i>context</i>, not our headline, to avoid duplicating what every team shows. The FRPM-vs-residual scatter shows near-zero correlation, meaning poverty alone does not explain the gaps - strengthening the school-type story.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2" style="color:var(--gold)">4. Dashboard - accurate and reliable</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card">Live Streamlit app with KPIs, a school-type bar chart, a CA school map colored by over/under-performance, a top-individual-schools table, the CS-context chart, and deep cuts (county, FRPM). Every chart reads from the same cleaned data; the sidebar re-runs the calculation for any year range, campus, or school-type filter, so numbers stay internally consistent.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2" style="color:var(--gold)">5. Presentation - well-understood and conveyed</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card">A 2-3 minute slide deck opens with the counterintuitive hook ("the schools predicted to send the fewest students to UC beat the odds by 21 points"), walks the data and tools, demonstrates the dashboard, shows how Gemini was used to validate (not fabricate), and closes with the finding. The AI Lab lets a judge ask any question and get an answer grounded only in the real numbers.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sec"><div class="muted">Data: event dashboard_data.csv + uc_freshman_admission_by_discipline.csv. Residual column precomputed by organizers (poverty, GPA, school size). Universitywide is not the sum of campuses. Reproduce: dashboard_notebook.ipynb.</div></div>', unsafe_allow_html=True)
 
 elif NAV == "ai":
     st.markdown('<div id="ailab">', unsafe_allow_html=True)

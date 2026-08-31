@@ -15,54 +15,48 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{
-    background:var(--paper); color:var(--ink);
-    font-family:'Inter',system-ui,sans-serif;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden;
-  }
-  .deck{width:min(1100px,94vw); height:min(640px,90vh); position:relative}
-  .slide{
-    position:absolute; inset:0; background:var(--card);
-    border:1px solid var(--line); border-radius:16px;
-    box-shadow:0 20px 60px rgba(0,50,98,.12);
-    padding:54px 60px; display:none; flex-direction:column;
-    border-top:6px solid var(--navy);
-  }
-  .slide.active{display:flex; animation:fade .35s ease}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .deck{width:min(1100px,94vw);height:min(640px,90vh);position:relative}
+  .slide{position:absolute;inset:0;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;box-shadow:0 20px 60px rgba(0,50,98,.12);padding:52px 60px;
+    display:none;flex-direction:column;border-top:6px solid var(--navy);}
+  .slide.active{display:flex;animation:fade .35s ease}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .kicker{
-    font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--gold2); margin-bottom:14px; font-weight:500;
-  }
-  h1{font-family:'Fraunces',serif; font-size:44px; line-height:1.08; font-weight:600; color:var(--navy); margin-bottom:18px}
-  h2{font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:var(--navy); margin-bottom:16px}
-  p{font-size:18px; line-height:1.55; color:var(--ink); max-width:62ch}
-  .lead{font-size:20px; line-height:1.6}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--gold2);margin-bottom:14px;font-weight:500;}
+  h1{font-family:'Fraunces',serif;font-size:44px;line-height:1.08;font-weight:600;color:var(--navy);margin-bottom:18px}
+  h2{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--navy);margin-bottom:14px}
+  p{font-size:18px;line-height:1.55;color:var(--ink);max-width:62ch}
+  .lead{font-size:20px;line-height:1.6}
   .muted{color:var(--muted)}
-  .kpis{display:flex; gap:18px; margin-top:26px; flex-wrap:wrap}
-  .kpi{flex:1; min-width:150px; background:var(--paper); border:1px solid var(--line);
-       border-radius:12px; padding:18px 20px; border-left:4px solid var(--gold)}
-  .kpi .n{font-family:'Fraunces',serif; font-size:34px; color:var(--navy); font-weight:700; line-height:1}
-  .kpi .l{font-size:13px; color:var(--muted); margin-top:6px; text-transform:uppercase; letter-spacing:.06em}
-  .bar{display:flex; align-items:center; gap:12px; margin-top:10px}
-  .bar .name{width:230px; font-size:15px; color:var(--muted)}
-  .bar .track{flex:1; height:26px; background:var(--paper); border:1px solid var(--line); border-radius:6px; overflow:hidden}
-  .bar .fill{height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:var(--navy2); font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:500}
-  .bullets{list-style:none; margin-top:14px}
-  .bullets li{font-size:18px; line-height:1.5; padding:9px 0 9px 28px; position:relative; border-bottom:1px solid var(--line)}
-  .bullets li:before{content:""; position:absolute; left:6px; top:17px; width:9px; height:9px; border-radius:2px; background:var(--gold)}
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:18px}
-  .panel{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:20px 22px}
-  .panel h3{font-family:'Fraunces',serif; font-size:20px; color:var(--navy); margin-bottom:10px}
-  .quote{font-family:'Fraunces',serif; font-size:26px; line-height:1.4; color:var(--navy); border-left:5px solid var(--gold); padding-left:22px; margin-top:18px; font-style:italic}
-  .foot{position:absolute; bottom:18px; left:60px; right:60px; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace}
-  .nav{display:flex; gap:8px}
-  .nav button{background:var(--navy); color:#fff; border:none; padding:8px 14px; border-radius:8px; font-size:13px; cursor:pointer; font-family:'Inter';font-weight:600}
-  .nav button.ghost{background:transparent; color:var(--navy); border:1px solid var(--navy)}
-  .pill{display:inline-block; background:var(--navy); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:4px 10px; border-radius:20px; margin-right:8px}
-  .cal{width:40px; height:40px; vertical-align:middle; margin-right:12px}
-  .hint{position:absolute; bottom:18px; right:60px; font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace}
+  .kpis{display:flex;gap:18px;margin-top:26px;flex-wrap:wrap}
+  .kpi{flex:1;min-width:150px;background:var(--paper);border:1px solid var(--line);
+    border-radius:12px;padding:18px 20px;border-left:4px solid var(--gold)}
+  .kpi .n{font-family:'Fraunces',serif;font-size:34px;color:var(--navy);font-weight:700;line-height:1}
+  .kpi .l{font-size:13px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+  .bar{display:flex;align-items:center;gap:12px;margin-top:10px}
+  .bar .name{width:250px;font-size:15px;color:var(--muted)}
+  .bar .track{flex:1;height:26px;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .bar .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));display:flex;
+    align-items:center;justify-content:flex-end;padding-right:8px;color:var(--navy2);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500}
+  .bullets{list-style:none;margin-top:14px}
+  .bullets li{font-size:17px;line-height:1.5;padding:9px 0 9px 28px;position:relative;border-bottom:1px solid var(--line)}
+  .bullets li:before{content:"";position:absolute;left:6px;top:17px;width:9px;height:9px;border-radius:2px;background:var(--gold)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:16px}
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .panel h3{font-family:'Fraunces',serif;font-size:18px;color:var(--navy);margin-bottom:8px}
+  .rubric-tag{display:inline-block;background:var(--navy);color:#fff;font-family:'IBM Plex Mono',monospace;
+    font-size:11px;padding:3px 9px;border-radius:4px;margin-bottom:8px;letter-spacing:.05em}
+  .quote{font-family:'Fraunces',serif;font-size:25px;line-height:1.4;color:var(--navy);
+    border-left:5px solid var(--gold);padding-left:22px;margin-top:18px;font-style:italic}
+  .foot{position:absolute;bottom:16px;left:60px;right:60px;display:flex;justify-content:space-between;align-items:center;
+    font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+  .nav{display:flex;gap:8px}
+  .nav button{background:var(--navy);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600}
+  .nav button.ghost{background:transparent;color:var(--navy);border:1px solid var(--navy)}
+  .hint{position:absolute;bottom:16px;right:60px;font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
 </style>
 </head>
 <body>
@@ -72,48 +66,31 @@
   <section class="slide active">
     <div class="kicker">UC Admissions Data Challenge 2026</div>
     <h1>Which California public schools beat their expected UC admit rate?</h1>
-    <p class="lead">A data dashboard built from real UC freshman admissions data. We find the school type that most outperforms its predicted admit rate <span class="muted">(after controlling for poverty, GPA, and size)</span> and explain why it matters.</p>
+    <p class="lead">A data dashboard built from real UC freshman admissions. We find the school type that most outperforms its predicted admit rate <span class="muted">(after controlling for poverty, GPA, and size)</span> and explain why it matters to judges.</p>
     <div class="kpis">
       <div class="kpi"><div class="n">+21.5pp</div><div class="l">Top school type beats expectation</div></div>
       <div class="kpi"><div class="n">5</div><div class="l">School types compared</div></div>
       <div class="kpi"><div class="n">80,533</div><div class="l">Applicants in view</div></div>
     </div>
-    <div class="hint">use arrow keys or the buttons to advance</div>
+    <div class="hint">arrow keys or buttons to advance</div>
   </section>
 
-  <!-- 2 WHY IT MATTERS -->
+  <!-- 2 QUESTION (rubric 1) -->
   <section class="slide">
-    <div class="kicker">Why this question</div>
-    <h2>Every school has a predicted admit rate. Some beat it.</h2>
-    <p>UC publishes an <b>expected</b> admit rate for each school, already adjusted for poverty (FRPM), applicant GPA, and school size. The gap between the <b>real</b> rate and that prediction is the story.</p>
+    <div class="rubric-tag">RUBRIC 1 - QUESTION</div>
+    <h2>The question, stated precisely</h2>
+    <p>For CA public high schools in 2022-2024, which school type most outperforms its expected UC freshman admit rate, after controlling for poverty, applicant GPA, and school size?</p>
     <div class="grid2">
-      <div class="panel">
-        <h3>What we asked</h3>
-        <p class="muted">For CA public high schools in 2022-2024, which school type most outperforms its expected UC freshman admit rate, after controlling for poverty, GPA, and size?</p>
-      </div>
-      <div class="panel">
-        <h3>Why judges care</h3>
-        <p class="muted">It surfaces the schools the model underestimates. The ones "supposed" to send the fewest students to UC are the ones quietly beating the odds.</p>
-      </div>
+      <div class="panel"><h3>Time window</h3><p class="muted">Fall terms 2022, 2023, 2024 - recent enough to be relevant, wide enough to be stable.</p></div>
+      <div class="panel"><h3>Population</h3><p class="muted">California public high schools, Universitywide. Five school types compared.</p></div>
+      <div class="panel"><h3>Metric</h3><p class="muted">Mean admit_rate_residual in percentage points, grouped by school_type. Precomputed by organizers.</p></div>
+      <div class="panel"><h3>Why this question</h3><p class="muted">It surfaces schools the model underestimates - the ones "supposed" to send the fewest students to UC are quietly beating the odds.</p></div>
     </div>
   </section>
 
-  <!-- 3 DATA + TOOLS -->
+  <!-- 3 FINDING (rubric 2) -->
   <section class="slide">
-    <div class="kicker">Data & tools</div>
-    <h2>Two real datasets, two tools</h2>
-    <div class="bullets">
-      <li><span class="pill">DATA</span>dashboard_data.csv — every CA school, campus, year, with a precomputed <b>admit_rate_residual</b> column</li>
-      <li><span class="pill">DATA</span>uc_freshman_admission_by_discipline.csv — campus discipline admit rates (CS context)</li>
-      <li><span class="pill">TOOL</span>Python + pandas to filter, group, and average the residual by school type</li>
-      <li><span class="pill">TOOL</span>Streamlit + Plotly for the live dashboard; Google Colab for the question sprint</li>
-    </div>
-    <p class="muted" style="margin-top:18px">Rigor check: we sum applicant/admit counts then divide. We never average percentages. Universitywide is not the sum of campuses.</p>
-  </section>
-
-  <!-- 4 FINDING -->
-  <section class="slide">
-    <div class="kicker">The finding</div>
+    <div class="rubric-tag">RUBRIC 2 - FINDING</div>
     <h2>Continuation High Schools lead by a wide margin</h2>
     <p>Beats-expected admit rate by school type (percentage points above the predicted rate):</p>
     <div style="margin-top:14px">
@@ -123,53 +100,53 @@
       <div class="bar"><div class="name">High Schools (Public)</div><div class="track"><div class="fill" style="width:8%">+1.7</div></div></div>
       <div class="bar"><div class="name">High Schools in 1 District</div><div class="track"><div class="fill" style="width:3%">+0.6</div></div></div>
     </div>
-    <p class="muted" style="margin-top:18px">Regular public high schools barely beat expectation (+1.7pp). The schools expected to send the fewest students to UC most outperform their profile.</p>
+    <p class="muted" style="margin-top:16px">Concise and justifiable: the residual column isolates over-performance after poverty, GPA, and size are accounted for. Regular public high schools barely beat expectation.</p>
   </section>
 
-  <!-- 5 DASHBOARD DEMO -->
+  <!-- 4 RIGOR (rubric 3) -->
   <section class="slide">
-    <div class="kicker">Dashboard</div>
-    <h2>What the app shows</h2>
-    <div class="grid2">
-      <div class="panel">
-        <h3>Overview</h3>
-        <p class="muted">KPI cards + a bar chart of every school type's over-performance. Green above zero, red below.</p>
-      </div>
-      <div class="panel">
-        <h3>School map</h3>
-        <p class="muted">Every CA public school plotted, colored green (beats expectation) to red (below). Filter by type in the sidebar.</p>
-      </div>
-      <div class="panel">
-        <h3>Top schools</h3>
-        <p class="muted">Individual schools that beat expectation most: Circle of Independent Learning +28.3, Coliseum College Prep +24.8, Mission Senior High +24.3.</p>
-      </div>
-      <div class="panel">
-        <h3>CS context + Deep analysis</h3>
-        <p class="muted">The crowded finding (CS lowers admit odds, Davis harshest) shown as context, not our headline. Plus FRPM / GPA / size breakdowns.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6 GEMINI -->
-  <section class="slide">
-    <div class="kicker">Smart AI use</div>
-    <h2>We used Gemini to stress-test the work</h2>
-    <p>Not to generate the finding, but to pressure-test it: judging our own scorecard, scanning what competitors likely built, and drafting a one-line hook.</p>
+    <div class="rubric-tag">RUBRIC 3 - RIGOR</div>
+    <h2>Why the finding is trustworthy</h2>
     <div class="bullets">
-      <li>Ask-the-data: Gemini answers questions using only the real numbers we computed (it cannot invent stats)</li>
-      <li>Judge scorecard: scores the dashboard 1-5 on question, finding, rigor, dashboard, presentation</li>
-      <li>Competitor radar: lists rival angles and how to differentiate</li>
-      <li>Wow hook: writes a punchy 25-word opener for judges</li>
+      <li><b>Sum-then-divide.</b> We add applicant and admit counts then divide. We never average percentages - that biases toward small schools.</li>
+      <li><b>Universitywide is not a campus sum.</b> We report it separately, avoiding a classic aggregation error.</li>
+      <li><b>CS penalty is context, not headline.</b> The crowded finding (CS lowers odds, Davis harshest) is shown as background so we don't duplicate what every team shows.</li>
+      <li><b>Poverty doesn't explain it.</b> FRPM% vs residual correlation is near zero - the school-type gap holds after poverty is controlled.</li>
+      <li><b>Reproducible.</b> Every number traces to dashboard_notebook.ipynb on the same cleaned data.</li>
     </div>
-    <p class="muted" style="margin-top:14px">Key is entered in-settings, free Gemini models only, never stored.</p>
+  </section>
+
+  <!-- 5 DASHBOARD (rubric 4) -->
+  <section class="slide">
+    <div class="rubric-tag">RUBRIC 4 - DASHBOARD</div>
+    <h2>Accurate and reliable dashboard</h2>
+    <div class="grid2">
+      <div class="panel"><h3>Overview</h3><p class="muted">KPI cards + school-type bar chart. Green above zero, red below.</p></div>
+      <div class="panel"><h3>School map</h3><p class="muted">Every CA public school colored green (beats) to red (below). Filter by type.</p></div>
+      <div class="panel"><h3>Top schools</h3><p class="muted">Circle of Independent Learning +28.3, Coliseum College Prep +24.8, Mission Senior High +24.3.</p></div>
+      <div class="panel"><h3>Consistency</h3><p class="muted">Sidebar re-runs the calc for any year/campus/type - numbers never contradict.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 PRESENTATION (rubric 5) -->
+  <section class="slide">
+    <div class="rubric-tag">RUBRIC 5 - PRESENTATION</div>
+    <h2>Well-understood and conveyed</h2>
+    <div class="bullets">
+      <li><b>Hook first.</b> "The schools predicted to send the fewest students to UC beat the odds by 21 points."</li>
+      <li><b>Plain language.</b> No jargon without a one-line explanation a non-expert judge follows.</li>
+      <li><b>Live demo.</b> The dashboard is shown, not just described - judges see the data move.</li>
+      <li><b>Honest AI use.</b> Gemini validates and stress-tests; it never fabricates the finding.</li>
+      <li><b>Ask me anything.</b> The AI Lab answers judge questions from the real numbers on the spot.</li>
+    </div>
   </section>
 
   <!-- 7 WOW HOOK -->
   <section class="slide">
-    <div class="kicker">The opener</div>
+    <div class="kicker">THE OPENER</div>
     <h2>One line for the judges</h2>
     <div class="quote">"The schools predicted to send the fewest students to UC are the ones quietly beating the odds by 21 points."</div>
-    <p style="margin-top:24px">That is the counterintuitive core of our dashboard: expectation is not destiny. Continuation high schools outperform their profile more than any other public school type in California.</p>
+    <p style="margin-top:22px">That is the counterintuitive core: expectation is not destiny. Continuation high schools outperform their profile more than any other public school type in California.</p>
     <div class="kpis">
       <div class="kpi"><div class="n">+21.5pp</div><div class="l">Continuation High Schools</div></div>
       <div class="kpi"><div class="n">2022-24</div><div class="l">Fall terms studied</div></div>
@@ -179,20 +156,20 @@
 
   <!-- 8 CLOSE -->
   <section class="slide">
-    <div class="kicker">Summary</div>
+    <div class="kicker">SUMMARY</div>
     <h2>What we delivered</h2>
     <div class="bullets">
       <li><b>Question:</b> which CA public school type beats its expected UC admit rate, controlling for poverty, GPA, size</li>
       <li><b>Finding:</b> Continuation High Schools, +21.5pp above expectation, highest of five types</li>
-      <li><b>Rigor:</b> precomputed residual column, sum-then-divide, Universitywide not a campus sum</li>
-      <li><b>Dashboard:</b> live Streamlit app with map, top-schools, CS context, deep analysis</li>
-      <li><b>AI:</b> Gemini used to validate and sharpen, not to fabricate</li>
+      <li><b>Rigor:</b> precomputed residual, sum-then-divide, Universitywide not a campus sum, FRPM doesn't explain it</li>
+      <li><b>Dashboard:</b> live Streamlit app - map, top-schools, CS context, deep analysis</li>
+      <li><b>Presentation:</b> hook-driven, demoed live, AI used to validate not fabricate</li>
     </div>
-    <p style="margin-top:22px; font-family:'Fraunces',serif; font-size:22px; color:var(--navy)">Thank you. Questions?</p>
+    <p style="margin-top:20px;font-family:'Fraunces',serif;font-size:22px;color:var(--navy)">Thank you. Questions?</p>
   </section>
 
   <div class="foot">
-    <span>UC Admissions Lab · Dhiaan Dave · 2026 Datathon</span>
+    <span>UC Admissions Lab &middot; Dhiaan Dave &middot; 2026 Datathon</span>
     <div class="nav">
       <button class="ghost" id="prev">Back</button>
       <button id="next">Next</button>
