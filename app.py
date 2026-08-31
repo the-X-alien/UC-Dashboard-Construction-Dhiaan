@@ -352,7 +352,7 @@ elif NAV == "ai":
                        f"Current dashboard view: data window {years[0]}-{years[1]}, campus {campus}.\n"
                        "Answer the user's question clearly and concisely in a student presenter voice. Use plain text; avoid markdown tables. Keep under 180 words.")
                 out = gemini_call(ctx + "\n\nQuestion: " + q, max_tokens=900)
-            st.markdown(f'<div class="aiout">{out}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="aiout" style="background:#ffffff !important;color:#111111 !important;border:1px solid #d9d3c7 !important;border-radius:12px;padding:16px 18px;">{out}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---- Chance Me predictor ----
