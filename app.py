@@ -91,8 +91,9 @@ section[data-testid="stSidebar"]{{background:var(--paper);border-right:1px solid
 .card.blue{{border-top:3px solid var(--navy);}}
 .kpi .num{{font-size:2rem;font-weight:700;line-height:1;}}
 .kpi .lab{{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);}}
-.aiout{{background:#ffffff !important;border:1px solid #d9d3c7 !important;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:#111111 !important;font-size:.98rem;line-height:1.6;}}
-.aiout *{{color:#111111 !important;}}
+#ailab .aiout{{background:#ffffff !important;border:1px solid #d9d3c7 !important;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);color:#111111 !important;font-size:.98rem;line-height:1.6;}}
+#ailab .aiout *{{color:#111111 !important;}}
+#ailab .stMarkdown p, #ailab .stMarkdown div, #ailab .stMarkdown span, #ailab .stMarkdown li{{color:#111111 !important;}}
 .win{{color:var(--ok);}} .lose{{color:var(--bad);}}
 .sec{{margin-top:30px;padding-top:26px;border-top:1px solid var(--line);}}
 .cap{{color:var(--muted);font-size:12.5px;margin-top:8px;}}
@@ -304,8 +305,10 @@ elif NAV == "deep":
     dd = d.dropna(subset=["admit_rate_residual"])
     st.markdown('<div class="sec">', unsafe_allow_html=True)
     st.markdown('<div class="h2">Residual distribution by school type</div>', unsafe_allow_html=True)
-    fig = px.histogram(dd, x="admit_rate_residual", color="school_type", nbins=30, marginal="box", opacity=0.75)
-    fig.update_layout(**LAY, height=420, xaxis_title="Admit rate residual", yaxis_title="Schools")
+    fig = px.box(dd, x="school_type", y="admit_rate_residual", color="school_type",
+                 points="outliers", labels={"admit_rate_residual": "Admit rate residual", "school_type": "School type"})
+    fig.update_layout(**LAY, height=440, showlegend=False, yaxis_title="Admit rate residual")
+    fig.update_traces(boxmean=True, marker=dict(size=4))
     plot(fig)
     st.markdown('<div class="cap">Shows spread + outliers per type. Continuation sits far right of zero.</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -342,6 +345,7 @@ elif NAV == "meth":
     st.markdown('<div class="sec"><div class="muted">Source: event datasets. Residual column precomputed by organizers (poverty, GPA, school size). Universitywide is not the sum of campuses.</div></div>', unsafe_allow_html=True)
 
 elif NAV == "ai":
+    st.markdown('<div id="ailab">', unsafe_allow_html=True)
     st.markdown('<div class="page-title" style="font-size:1.9rem">AI Lab</div>', unsafe_allow_html=True)
     st.caption("Powered by Gemini (free models). Key stays in your session only, never written to disk.")
     if not st.session_state.gemini_key:
@@ -414,4 +418,5 @@ elif NAV == "ai":
         df_out = pd.DataFrame(rows, columns=["Metric", "Value"])
         st.dataframe(df_out, width='stretch', hide_index=True)
         st.markdown(f'<div class="cap">Estimate uses real historical admit rates and the actual admitted-student GPA distribution for {label}. Your GPA of {ch_gpa:.2f} moves the estimate {"up" if mult >= 1 else "down"} from the base. This is a data-grounded approximation, not an official guarantee.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
