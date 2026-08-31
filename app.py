@@ -137,8 +137,11 @@ def load():
     return dd, disc
 
 
+dash, disc = load()
+
+
 @st.cache_data
-def data_context():
+def data_context(dash, disc):
     """Compact, real summary of the datasets so Gemini can answer any question grounded in data."""
     d = dash.copy()
     d = d[(d["school_type"].notna()) & (d["campus"] == "Universitywide")]
@@ -169,7 +172,7 @@ def data_context():
     return "\n".join(lines)
 
 
-DASH_CONTEXT = data_context()
+DASH_CONTEXT = data_context(dash, disc)
 
 # ---------- sidebar ----------
 with st.sidebar:
