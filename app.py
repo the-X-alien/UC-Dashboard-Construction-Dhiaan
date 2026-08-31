@@ -251,6 +251,13 @@ if NAV == "overview":
     plot(fig)
     st.markdown('<div class="cap">Bars above zero admit more than their poverty / GPA / size profile predicts. Continuation high schools lead by a wide margin.</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec">', unsafe_allow_html=True)
+    st.markdown('<div class="h2">Best individual schools</div>', unsafe_allow_html=True)
+    top_sch = (d.groupby("high_school")["admit_rate_residual"].mean().sort_values(ascending=False).head(12) * 100).round(1)
+    ts = top_sch.reset_index(); ts.columns = ["high_school", "beats_expected_pp"]
+    st.dataframe(ts, width='stretch', height=380, hide_index=True)
+    st.markdown('<div class="cap">Individual CA public schools that most beat their expected UC admit rate in the selected window. Filter by school type in the sidebar to narrow the list.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="sec"><div class="card feature"><div class="kick" style="color:var(--gold)">Finding</div><div class="lede" style="color:var(--ink)"><b>Continuation High Schools beat their expected UC admit rate by ~{top_val} pp (2022&ndash;2024)</b>, the highest of any CA public school type, while regular public high schools average only ~1.7 pp.</div></div></div>', unsafe_allow_html=True)
 
 elif NAV == "map":
