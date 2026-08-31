@@ -137,7 +137,39 @@ def load():
     return dd, disc
 
 
-dash, disc = load()
+@st.cache_data
+def data_context():
+    """Compact, real summary of the datasets so Gemini can answer any question grounded in data."""
+    d = dash.copy()
+    d = d[(d["school_type"].notna()) & (d["campus"] == "Universitywide")]
+    lines = []
+    lines.append(f"Rows in dashboard_data.csv: {len(dash):,}. Columns include: high_school, city, county, campus, school_type, applicants, admits, admit_rate, applicant_gpa, admit_gpa, frpm_pct, admit_rate_residual, expected_admit_rate.")
+    lines.append(f"CA public school types present: {sorted(d['school_type'].dropna().unique().tolist())}.")
+    # by school type (universitywide, all years)
+    by_type = (d.groupby("school_type")["admit_rate_residual"].mean() * 100).round(1).sort_values(ascending=False)
+    lines.append("Mean admit-rate residual (pp) by school type (Universitywide, all years): " + ", ".join(f"{k}={v:+.1f}" for k, v in by_type.items()) + ".")
+    # by campus overall admit rate (recent)
+    recent = dash[dash["fall_term"] >= 2022]
+    by_camp = (recent.groupby("campus")["admit_rate"].mean() * 100).round(1).sort_values()
+    lines.append("Mean admit rate (%) by campus (2022+): " + ", ".join(f"{k}={v:.1f}" for k, v in by_camp.items()) + ".")
+    # top / bottom schools by residual
+    sch = d.groupby("high_school")["admit_rate_residual"].mean().sort_values(ascending=False)
+    top = (sch.head(8) * 100).round(1)
+    bot = (sch.tail(5).sort_values() * 100).round(1)
+    lines.append("Top schools beating expectation (pp): " + ", ".join(f"{k}={v:+.1f}" for k, v in top.items()) + ".")
+    lines.append("Biggest under-performers (pp): " + ", ".join(f"{k}={v:+.1f}" for k, v in bot.items()) + ".")
+    # discipline CS context
+    d25 = disc[disc["fall_term"] == 2025] if "fall_term" in disc.columns else disc
+    if "broad_discipline" in disc.columns:
+        ov = d25[d25["broad_discipline"] == "All disciplines"].set_index("campus")["admit_rate"]
+        cs = d25[d25["broad_discipline"] == "Computer Science"].set_index("campus")["admit_rate"]
+        pen = (cs - ov).dropna().sort_values()
+        lines.append("CS admit-rate penalty vs campus overall (pp, 2025): " + ", ".join(f"{k}={v:+.1f}" for k, v in pen.items()) + ".")
+    lines.append("Note: Universitywide is NOT the sum of campuses. admit_rate_residual = real minus expected admit rate (expected controls for FRPM poverty, GPA, school size).")
+    return "\n".join(lines)
+
+
+DASH_CONTEXT = data_context()
 
 # ---------- sidebar ----------
 with st.sidebar:
@@ -315,9 +347,8 @@ elif NAV == "ai":
             st.warning("Enter a Gemini API key in Settings first.")
         else:
             with st.spinner("Thinking..."):
-                ctx = (f"Context (real computed stats, do not invent any number): {finding_text}\n"
-                       f"School-type residuals in percentage points: {dict(res_pp.round(1))}.\n"
-                       f"Data window {years[0]}-{years[1]}, campus {campus}.\n"
+                ctx = (f"CONTEXT - real dataset facts (use ONLY these, do not invent numbers):\n{DASH_CONTEXT}\n\n"
+                       f"Current dashboard view: data window {years[0]}-{years[1]}, campus {campus}.\n"
                        "Answer the user's question clearly and concisely in a student presenter voice. Use plain text; avoid markdown tables. Keep under 180 words.")
                 out = gemini_call(ctx + "\n\nQuestion: " + q, max_tokens=900)
             st.markdown(f'<div class="aiout">{out}</div>', unsafe_allow_html=True)
@@ -326,35 +357,53 @@ elif NAV == "ai":
     # ---- Chance Me predictor ----
     st.markdown('<div class="sec">', unsafe_allow_html=True)
     st.markdown('<div class="h2">Chance Me</div>', unsafe_allow_html=True)
-    st.markdown('<div class="lede">Estimate your UC admit odds from real historical rates for your school, campus, and GPA. Based on actual admit rates in the dataset (not a guess).</div>', unsafe_allow_html=True)
+    st.markdown('<div class="lede">Estimate your UC admit odds from the real data. We take your school (or school-type / campus) historical admit rate, then adjust it up or down based on how your GPA compares to the actual GPA distribution of admitted students for that group. Higher GPA = higher odds.</div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     with c1:
         ch_campus = st.selectbox("Campus", ["Universitywide"] + sorted([c for c in dash["campus"].dropna().unique() if c != "Universitywide"]), key="ch_c")
     with c2:
-        ch_school = st.selectbox("Your high school", [""] + sorted(dash["high_school"].dropna().unique().tolist()), key="ch_s")
+        ch_school = st.selectbox("Your high school", ["" ] + sorted(dash["high_school"].dropna().unique().tolist()), key="ch_s")
     with c3:
-        ch_gpa = st.number_input("Applicant GPA", min_value=0.0, max_value=5.0, value=3.8, step=0.1, key="ch_g")
+        ch_gpa = st.number_input("Your applicant GPA", min_value=0.0, max_value=5.0, value=3.8, step=0.05, key="ch_g")
     if st.button("Estimate my chances", key="ch_b"):
         sub = dash[(dash["campus"] == ch_campus)]
-        rows = []
-        if ch_school:
-            srow = sub[sub["high_school"] == ch_school]
-            if len(srow):
-                r = srow.iloc[0]
-                ar = pd.to_numeric(r.get("admit_rate"), errors="coerce")
-                exp = pd.to_numeric(r.get("expected_admit_rate"), errors="coerce")
-                residuals = pd.to_numeric(r.get("admit_rate_residual"), errors="coerce")
-                gpa = pd.to_numeric(r.get("applicant_gpa"), errors="coerce")
-                rows.append(("Your school (historical)", f"{ar*100:.1f}%" if pd.notna(ar) else "n/a",
-                             f"{residuals*100:+.1f}pp" if pd.notna(residuals) else "n/a",
-                             f"{gpa:.2f}" if pd.notna(gpa) else "n/a"))
-        stype = sub["school_type"].mode().iloc[0] if len(sub) else "High Schools (Public)"
-        stype_rows = sub[sub["school_type"] == stype]
-        base = pd.to_numeric(stype_rows["admit_rate"], errors="coerce").mean()
-        rows.append((f"Your school type avg ({stype})", f"{base*100:.1f}%", "", ""))
-        camp_avg = pd.to_numeric(sub["admit_rate"], errors="coerce").mean()
-        rows.append((f"{ch_campus} overall avg", f"{camp_avg*100:.1f}%", "", ""))
-        df_out = pd.DataFrame(rows, columns=["Group", "Admit rate", "vs expected", "Avg GPA"])
+        # pick the best available base group: exact school -> school type -> campus
+        srow = sub[sub["high_school"] == ch_school] if ch_school else sub.iloc[0:0]
+        if len(srow):
+            base_rate = pd.to_numeric(srow["admit_rate"], errors="coerce").mean()
+            grp = srow
+            label = ch_school
+        else:
+            stype = sub["school_type"].mode().iloc[0] if len(sub) else "High Schools (Public)"
+            grp = sub[sub["school_type"] == stype]
+            base_rate = pd.to_numeric(grp["admit_rate"], errors="coerce").mean()
+            label = f"{stype} (avg)"
+        base_rate = base_rate if pd.notna(base_rate) else pd.to_numeric(sub["admit_rate"], errors="coerce").mean()
+        # GPA adjustment: compare applicant GPA to the admitted-GPA distribution of this group
+        admit_gpa = pd.to_numeric(grp["admit_gpa"], errors="coerce").dropna()
+        if len(admit_gpa) >= 10:
+            lo, hi = admit_gpa.quantile(0.10), admit_gpa.quantile(0.90)
+            spread = (hi - lo) or 0.5
+            z = (ch_gpa - admit_gpa.median()) / spread  # ~ -1.4 .. +1.4
+            mult = 1.0 + 0.6 * max(-1.0, min(1.0, z))    # +/- up to 60%
+            typical_gpa = admit_gpa.median()
+            note_gpa = f"vs typical admitted GPA {typical_gpa:.2f}"
+        else:
+            mult = 1.0
+            typical_gpa = float("nan")
+            note_gpa = "GPA distribution not available for this group"
+        est = base_rate * mult
+        est = min(max(est, 0.0), 1.0)
+        rows = [
+            ("Base admit rate (" + label + ")", f"{base_rate*100:.1f}%"),
+            ("GPA adjustment", f"x{mult:.2f}  ({note_gpa})"),
+            ("Estimated chance", f"{est*100:.1f}%"),
+        ]
+        # show comparison anchors so it is clearly GPA-sensitive
+        if len(admit_gpa) >= 10:
+            rows.append(("If GPA were median", f"{base_rate*100:.1f}%"))
+            rows.append(("If GPA were 90th pct", f"{base_rate*(1+0.6)*100:.1f}%"))
+        df_out = pd.DataFrame(rows, columns=["Metric", "Value"])
         st.dataframe(df_out, width='stretch', hide_index=True)
-        st.markdown(f'<div class="cap">These are real historical admit rates from the dataset. Your GPA of {ch_gpa:.1f} is {"above" if ch_gpa >= (gpa if "gpa" in dir() and pd.notna(gpa) else ch_gpa) else "around"} the typical applicant GPA. For a personal prediction, ask Gemini above with your specifics.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="cap">Estimate uses real historical admit rates and the actual admitted-student GPA distribution for {label}. Your GPA of {ch_gpa:.2f} moves the estimate {"up" if mult >= 1 else "down"} from the base. This is a data-grounded approximation, not an official guarantee.</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
