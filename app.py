@@ -301,17 +301,8 @@ elif NAV == "cs":
 
 elif NAV == "deep":
     st.markdown('<div class="page-title" style="font-size:1.9rem">Deep analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="lede">Additional cuts that build rigor: distribution shape, county effects, and whether poverty explains the residual.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="lede">Additional cuts that build rigor: county effects, and whether poverty explains the residual.</div>', unsafe_allow_html=True)
     dd = d.dropna(subset=["admit_rate_residual"])
-    st.markdown('<div class="sec">', unsafe_allow_html=True)
-    st.markdown('<div class="h2">Residual distribution by school type</div>', unsafe_allow_html=True)
-    fig = px.box(dd, x="school_type", y="admit_rate_residual", color="school_type",
-                 points="outliers", labels={"admit_rate_residual": "Admit rate residual", "school_type": "School type"})
-    fig.update_layout(**LAY, height=440, showlegend=False, yaxis_title="Admit rate residual")
-    fig.update_traces(boxmean=True, marker=dict(size=4))
-    plot(fig)
-    st.markdown('<div class="cap">Shows spread + outliers per type. Continuation sits far right of zero.</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="sec">', unsafe_allow_html=True)
     st.markdown('<div class="h2">County-level over-performance</div>', unsafe_allow_html=True)
     cnt = dd.groupby("county")["admit_rate_residual"].mean().sort_values(ascending=False).head(12) * 100
@@ -363,7 +354,12 @@ elif NAV == "ai":
                        f"Current dashboard view: data window {years[0]}-{years[1]}, campus {campus}.\n"
                        "Answer the user's question clearly and concisely in a student presenter voice. Use plain text; avoid markdown tables. Keep under 180 words.")
                 out = gemini_call(ctx + "\n\nQuestion: " + q, max_tokens=900)
-            st.markdown(f'<div class="aiout" style="background:#ffffff !important;color:#111111 !important;border:1px solid #d9d3c7 !important;border-radius:12px;padding:16px 18px;">{out}</div>', unsafe_allow_html=True)
+            from streamlit.components.v1 import html
+            safe = out.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
+            ai_html = (f'<div style="background:#ffffff;color:#111111;border:1px solid #d9d3c7;'
+                        f'border-radius:12px;padding:16px 18px;font-family:Inter,Arial,sans-serif;'
+                        f'font-size:15px;line-height:1.6;">{safe}</div>')
+            html(ai_html, height=200)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---- Chance Me predictor ----
